@@ -1,0 +1,11 @@
+# Gecompileerde binaries en build-output
+/bin/
+*.exe
+*.out
+
+# Lokale configuratie (bevat je wallet) — niet committen!
+config.json
+
+# Editor/OS rommel
+.DS_Store
+*.swp

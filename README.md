@@ -86,6 +86,13 @@ knop.
 Zie [`deploy/vhnw-agent.service`](deploy/vhnw-agent.service) voor een kant-en-klare
 systemd-unit, zodat de agent automatisch opstart en blijft draaien.
 
+## Raspberry Pi 5
+
+Voor een verse Raspberry Pi OS Lite (64-bit) is er een installatiegids +
+install-script dat XMRig bouwt, de agent plaatst en de systemd-service start:
+zie [`docs/PI-SETUP.md`](docs/PI-SETUP.md) en
+[`scripts/install-pi.sh`](scripts/install-pi.sh).
+
 ## Testen zonder echt te minen
 
 Voor ontwikkeling zit er een **mock-miner** in die XMRig nabootst (inclusief de

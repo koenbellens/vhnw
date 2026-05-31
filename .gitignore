@@ -9,3 +9,4 @@ config.json
 # Editor/OS rommel
 .DS_Store
 *.swp
+/dist/

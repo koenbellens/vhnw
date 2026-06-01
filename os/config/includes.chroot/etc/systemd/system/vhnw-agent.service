@@ -1,0 +1,16 @@
+[Unit]
+Description=VHNW miner-agent (Van Hash Naar Winst)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# Guarantee working DNS: if resolv.conf has no nameserver (live images often
+# ship it empty), fall back to public resolvers so the pool host resolves.
+ExecStartPre=/bin/sh -c 'grep -q "^nameserver" /etc/resolv.conf 2>/dev/null || printf "nameserver 1.1.1.1\\nnameserver 8.8.8.8\\n" > /etc/resolv.conf'
+ExecStart=/usr/local/bin/vhnw-agent -config /etc/vhnw/config.json
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

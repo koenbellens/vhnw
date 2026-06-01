@@ -1,0 +1,17 @@
+linux-image-amd64
+live-boot
+live-config
+live-config-systemd
+systemd-sysv
+systemd-resolved
+openssh-server
+ca-certificates
+curl
+htop
+pciutils
+usbutils
+firmware-linux
+firmware-iwlwifi
+firmware-realtek
+firmware-atheros
+firmware-brcm80211

@@ -4,9 +4,54 @@
 *.out
 
 # Lokale configuratie (bevat je wallet) — niet committen!
-config.json
+/config.json
+config.local.json
+# uitzondering: de ingebakken OS-config hoort wél in de repo
+!os/config/includes.chroot/etc/vhnw/config.json
 
 # Editor/OS rommel
 .DS_Store
 *.swp
 /dist/
+
+# live-build (VHNW Mining-OS) — gegenereerde build-state + grote artefacten
+os/.build/
+os/cache/
+os/downloads/
+os/local/
+os/*.iso
+os/*.img
+os/binary*
+os/chroot*
+os/config/binary
+os/config/bootstrap
+os/config/chroot
+os/config/common
+os/config/source
+os/config/all
+os/config/build
+os/config/apt/
+os/config/archives/
+os/config/bootloaders/
+os/config/debian-installer/
+os/config/hooks/live/
+os/config/includes/
+os/config/includes.binary/
+os/config/includes.source/
+os/config/packages.chroot/
+os/config/preseed/
+os/config/rootfs/
+os/config/sysvinit/
+os/config/templates/
+# live-build kopieert standaard-hooks + genereert package-lists/build-output
+os/config/hooks/normal/1*.hook.chroot
+os/config/hooks/normal/5*.hook.chroot
+os/config/hooks/normal/8*.hook.chroot
+os/config/hooks/normal/9*.hook.chroot
+os/config/package-lists/live.list.chroot
+os/live-image-*
+os/auto/build
+os/auto/clean
+# gestagede binaries (worden door build.sh geplaatst, niet committen)
+os/config/includes.chroot/usr/local/bin/vhnw-agent
+os/config/includes.chroot/usr/local/bin/xmrig

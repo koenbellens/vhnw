@@ -1,0 +1,19 @@
+{
+  "web_host": "0.0.0.0",
+  "web_port": 8420,
+  "miner_path": "/usr/local/bin/xmrig",
+  "algo": "rx",
+  "pool": "rx.unmineable.com:3333",
+  "tls": false,
+  "wallet": "VanHashNaarWinst",
+  "worker": "vhnw-laptop",
+  "referral": "",
+  "password": "x",
+  "miner_api_host": "127.0.0.1",
+  "miner_api_port": 18000,
+  "extra_args": [],
+  "auto_start": true,
+  "restart_delay_seconds": 5,
+  "health_grace_seconds": 90,
+  "threads": 0
+}

@@ -1,0 +1,10 @@
+[Unit]
+Description=Set VHNW live-user password (for SSH debugging)
+After=multi-user.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/vhnw-setpass.sh
+
+[Install]
+WantedBy=multi-user.target

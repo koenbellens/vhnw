@@ -1,0 +1,26 @@
+#!/bin/sh
+# live-build configuration for the VHNW Mining-OS.
+# Produces a bootable hybrid ISO (USB-flashable) that auto-starts the
+# vhnw-agent so an old laptop becomes a dedicated miner on boot.
+set -e
+
+lb config noauto \
+	--mode debian \
+	--distribution bookworm \
+	--architectures amd64 \
+	--mirror-bootstrap "http://deb.debian.org/debian/" \
+	--mirror-chroot "http://deb.debian.org/debian/" \
+	--mirror-binary "http://deb.debian.org/debian/" \
+	--security false \
+	--parent-mirror-bootstrap "http://deb.debian.org/debian/" \
+	--parent-mirror-chroot "http://deb.debian.org/debian/" \
+	--parent-mirror-binary "http://deb.debian.org/debian/" \
+	--archive-areas "main contrib non-free non-free-firmware" \
+	--binary-images iso-hybrid \
+	--iso-application "VHNW Mining-OS" \
+	--iso-volume "VHNW-MINER" \
+	--iso-publisher "Van Hash Naar Winst" \
+	--memtest none \
+	--apt-recommends false \
+	--bootappend-live "boot=live components username=vhnw hostname=vhnw-miner quiet" \
+	"${@}"

@@ -38,7 +38,15 @@ chmod +x "$BIN_DST/xmrig"
 
 echo "==> [3/4] Configuring live-build"
 cd "$HERE"
+# 'lb clean' alleen verwijdert de squashfs (binary-stage) niet betrouwbaar,
+# waardoor een verouderde filesystem.squashfs in de ISO belandt en
+# chroot-wijzigingen (hooks/includes) niet doorkomen. Forceer daarom een
+# volledige schone herbouw van de chroot- en binary-stage. De pakket-cache
+# (cache/) blijft staan zodat de herbouw snel blijft.
 lb clean >/dev/null 2>&1 || true
+rm -rf "$HERE/.build" "$HERE/chroot" "$HERE/binary" \
+	"$HERE/chroot.files" "$HERE/chroot.packages.install" \
+	"$HERE/chroot.packages.live"
 ./auto/config
 
 echo "==> [4/4] Building ISO (this takes a while; needs root + network)"

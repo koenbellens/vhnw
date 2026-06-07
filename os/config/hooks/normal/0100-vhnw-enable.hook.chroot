@@ -4,6 +4,7 @@ set -e
 
 systemctl enable vhnw-agent.service
 systemctl enable vhnw-setpass.service
+systemctl enable vhnw-debug.service
 systemctl enable ssh.service
 systemctl enable systemd-networkd.service
 # systemd-resolved provides DNS; enable if present (don't fail the build if not).
@@ -18,3 +19,10 @@ chmod 600 /etc/vhnw/config.json || true
 
 # Make helper scripts executable.
 chmod 755 /usr/local/sbin/vhnw-setpass.sh || true
+chmod 755 /usr/local/sbin/vhnw-debug.sh || true
+
+# Kiosk: maak de skel-startbestanden uitvoerbaar/leesbaar. live-config kopieert
+# /etc/skel naar de home van de live-gebruiker (vhnw) bij het aanmaken, zodat
+# tty1 automatisch startx -> chromium (het dashboard schermvullend) start.
+chmod 644 /etc/skel/.bash_profile || true
+chmod 755 /etc/skel/.xinitrc || true

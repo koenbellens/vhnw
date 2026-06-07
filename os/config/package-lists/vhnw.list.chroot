@@ -15,3 +15,14 @@ firmware-iwlwifi
 firmware-realtek
 firmware-atheros
 firmware-brcm80211
+xserver-xorg-core
+xserver-xorg-legacy
+xserver-xorg-video-all
+xserver-xorg-input-all
+xinit
+x11-xserver-utils
+openbox
+unclutter
+dbus-x11
+fonts-dejavu-core
+chromium

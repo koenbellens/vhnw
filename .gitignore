@@ -55,3 +55,6 @@ os/auto/clean
 # gestagede binaries (worden door build.sh geplaatst, niet committen)
 os/config/includes.chroot/usr/local/bin/vhnw-agent
 os/config/includes.chroot/usr/local/bin/xmrig
+
+# stray build logs
+os-build*.log

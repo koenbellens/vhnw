@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VHNW &mdash; Community-dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0e14; --panel:#121823; --panel2:#0e131c; --line:#1e2a3a;
+    --txt:#e6edf6; --muted:#7d8da3; --accent:#16c784; --accent2:#2dd4bf;
+    --danger:#f6465d; --warn:#f0a500; --gpu:#9b7bf0; --asic:#f0a500;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font-family:Inter,system-ui,sans-serif;
+       background-image:radial-gradient(circle at 20% -10%,rgba(22,199,132,.10),transparent 40%),
+                        radial-gradient(circle at 90% 0%,rgba(45,212,191,.08),transparent 35%);}
+  header{display:flex;align-items:center;justify-content:space-between;gap:16px;
+         padding:18px 24px;border-bottom:1px solid var(--line)}
+  .brand{font-family:Orbitron,sans-serif;font-weight:700;letter-spacing:1px;font-size:20px}
+  .brand small{display:block;font-family:Inter;font-weight:400;color:var(--muted);font-size:11px;letter-spacing:.5px}
+  .live{display:inline-flex;align-items:center;gap:8px;color:var(--muted);font-size:13px}
+  .live .dot{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent);animation:pulse 1.6s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  .wrap{max-width:1100px;margin:0 auto;padding:24px}
+  .totals{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:8px}
+  .tcard{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+  .tcard .k{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.6px}
+  .tcard .v{font-family:Orbitron,sans-serif;font-size:30px;margin-top:8px}
+  .tcard .v small{font-size:14px;color:var(--muted);font-family:Inter}
+  .tcard.hero .v{color:var(--accent)}
+  .section h2{font-family:Orbitron,sans-serif;font-size:14px;letter-spacing:1px;color:var(--muted);
+              text-transform:uppercase;margin:28px 0 12px}
+  .devices{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+  .dev{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px;position:relative;overflow:hidden}
+  .dev.off{opacity:.55}
+  .dev .top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .dev .name{font-weight:600;font-size:16px;display:flex;align-items:center;gap:8px}
+  .dev .name .dot{width:10px;height:10px;border-radius:50%;background:var(--muted)}
+  .dev .name .dot.on{background:var(--accent);box-shadow:0 0 10px var(--accent)}
+  .badge{font-size:10.5px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;
+         padding:3px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+  .badge.cpu{color:var(--accent2);border-color:rgba(45,212,191,.4)}
+  .badge.asic{color:var(--asic);border-color:rgba(240,165,0,.4)}
+  .badge.gpu{color:var(--gpu);border-color:rgba(155,123,240,.4)}
+  .dev .hr{font-family:Orbitron,sans-serif;font-size:30px;margin:14px 0 2px}
+  .dev .hr small{font-size:14px;color:var(--muted);font-family:Inter}
+  .dev .meta{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;margin-top:12px;font-size:13px}
+  .dev .meta .row{display:flex;justify-content:space-between;gap:8px}
+  .dev .meta .row span:first-child{color:var(--muted)}
+  .dev .pool{margin-top:12px;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .empty{text-align:center;color:var(--muted);padding:60px 20px;border:1px dashed var(--line);border-radius:16px}
+  footer{color:var(--muted);font-size:12px;text-align:center;padding:24px}
+  footer a{color:var(--accent2)}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">VHNW<small>Van Hash Naar Winst &middot; community-dashboard</small></div>
+  <div class="live"><span class="dot"></span><span id="live">live</span></div>
+</header>
+
+<div class="wrap">
+  <div class="totals">
+    <div class="tcard hero"><div class="k">Totale hashrate</div><div class="v"><span id="t_hr">0</span> <small>H/s</small></div></div>
+    <div class="tcard"><div class="k">Apparaten online</div><div class="v"><span id="t_online">0</span> <small>/ <span id="t_total">0</span></small></div></div>
+    <div class="tcard"><div class="k">Shares (samen)</div><div class="v" id="t_shares">0</div></div>
+  </div>
+
+  <div class="section">
+    <h2>Apparaten</h2>
+    <div class="devices" id="devices"></div>
+    <div class="empty" id="empty" style="display:none">Nog geen apparaten gemeld. Zet op een miner de community-rapportage aan, dan verschijnt hij hier vanzelf.</div>
+  </div>
+</div>
+
+<footer>VHNW community-hub &middot; apparaten melden zich elke ~15s &middot; <a href="/api/devices">JSON</a></footer>
+
+<script src="app.js"></script>
+</body>
+</html>

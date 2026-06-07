@@ -42,6 +42,31 @@ type Config struct {
 	HealthGraceSeconds  int  `json:"health_grace_seconds"`
 	// Aantal CPU threads (0 = XMRig bepaalt het zelf, automatisch).
 	Threads int `json:"threads"`
+
+	// Community: laat dit apparaat zijn status periodiek naar de centrale
+	// VHNW-hub sturen (Laag 3 community-dashboard).
+	Community Community `json:"community"`
+}
+
+// Community bevat de instellingen waarmee dit apparaat zich aanmeldt bij de
+// centrale hub. Staat Enabled uit, dan wordt er niets verstuurd.
+type Community struct {
+	Enabled bool `json:"enabled"`
+	// HubURL is de basis-URL van de hub, bv. "https://hub.vanhashnaarwinst.nl".
+	HubURL string `json:"hub_url"`
+	// DeviceID is een stabiele, willekeurige id voor dit apparaat. Wordt bij de
+	// eerste start automatisch ingevuld als hij leeg is.
+	DeviceID string `json:"device_id"`
+	// DeviceName is de weergavenaam in het dashboard (valt terug op de worker/
+	// hostnaam).
+	DeviceName string `json:"device_name"`
+	// DeviceType bepaalt het soort apparaat: "cpu-agent", "asic" of "gpu".
+	DeviceType string `json:"device_type"`
+	// Token is een gedeeld geheim dat de hub gebruikt om rapporten te
+	// accepteren (leeg = hub bepaalt zelf of hij open staat).
+	Token string `json:"token"`
+	// IntervalSeconds is hoe vaak er een heartbeat wordt verstuurd.
+	IntervalSeconds int `json:"interval_seconds"`
 }
 
 // Default geeft een bruikbare standaardconfiguratie terug. De waarden zijn
@@ -65,6 +90,12 @@ func Default() Config {
 		RestartDelaySeconds: 5,
 		HealthGraceSeconds:  90,
 		Threads:             0,
+		Community: Community{
+			Enabled:         false,
+			HubURL:          "",
+			DeviceType:      "cpu-agent",
+			IntervalSeconds: 15,
+		},
 	}
 }
 
@@ -169,6 +200,24 @@ func (c *Config) applyDefaults() {
 	if c.ExtraArgs == nil {
 		c.ExtraArgs = []string{}
 	}
+	if c.Community.DeviceType == "" {
+		c.Community.DeviceType = d.Community.DeviceType
+	}
+	if c.Community.IntervalSeconds == 0 {
+		c.Community.IntervalSeconds = d.Community.IntervalSeconds
+	}
+}
+
+// DeviceName geeft de weergavenaam voor het community-dashboard: de ingestelde
+// naam, anders de worker-naam, anders de hostnaam.
+func (c Config) DeviceName() string {
+	if n := strings.TrimSpace(c.Community.DeviceName); n != "" {
+		return n
+	}
+	if w := strings.TrimSpace(c.Worker); w != "" {
+		return w
+	}
+	return hostnameWorker()
 }
 
 func hostnameWorker() string {

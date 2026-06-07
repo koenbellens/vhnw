@@ -1,0 +1,12 @@
+[Unit]
+Description=Set VHNW live-user password (for SSH debugging)
+# NB: NIET 'After=multi-user.target' samen met 'WantedBy=multi-user.target'
+# (dat geeft een ordening-cyclus -> de job wordt gedropt en draait nooit).
+After=live-config.service systemd-user-sessions.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/vhnw-setpass.sh
+
+[Install]
+WantedBy=multi-user.target

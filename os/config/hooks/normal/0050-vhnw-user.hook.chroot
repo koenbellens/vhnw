@@ -1,0 +1,25 @@
+#!/bin/sh
+# Maak de live-gebruiker 'vhnw' al in het image aan.
+#
+# live-config maakt de gebruiker bij het opstarten niet betrouwbaar aan
+# (getpwnam(vhnw) faalt -> autologin op tty1 loopt vast -> geen X/kiosk).
+# Door 'm hier in de chroot te bakken bestaat hij gegarandeerd, met de juiste
+# groepen voor X (video -> /dev/dri, input -> toetsenbord/muis, tty -> VT).
+set -e
+
+if ! id vhnw >/dev/null 2>&1; then
+	useradd --create-home --shell /bin/bash \
+		--groups sudo,video,render,input,tty,audio,plugdev,netdev \
+		vhnw
+fi
+
+# Bekende wachtwoorden zodat SSH-debug werkt (vhnw / root = minenmaar).
+echo "vhnw:minenmaar" | chpasswd
+echo "root:minenmaar" | chpasswd
+
+# Zorg dat de skel-startbestanden (kiosk) ook echt in de home staan: useradd
+# kopieert /etc/skel bij aanmaak, maar als de home al bestond niet. Force-kopie.
+cp -a /etc/skel/.bash_profile /home/vhnw/.bash_profile 2>/dev/null || true
+cp -a /etc/skel/.xinitrc /home/vhnw/.xinitrc 2>/dev/null || true
+chown -R vhnw:vhnw /home/vhnw
+chmod 755 /home/vhnw/.xinitrc 2>/dev/null || true

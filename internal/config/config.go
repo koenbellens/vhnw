@@ -60,6 +60,9 @@ type Community struct {
 	// DeviceName is de weergavenaam in het dashboard (valt terug op de worker/
 	// hostnaam).
 	DeviceName string `json:"device_name"`
+	// Owner is de naam van de eigenaar; het dashboard toont dit als community-
+	// label ("van <eigenaar>") zodat zichtbaar is wie welk apparaat heeft.
+	Owner string `json:"owner"`
 	// DeviceType bepaalt het soort apparaat: "cpu-agent", "asic" of "gpu".
 	DeviceType string `json:"device_type"`
 	// Token is een gedeeld geheim dat de hub gebruikt om rapporten te

@@ -16,6 +16,8 @@ import (
 type Heartbeat struct {
 	DeviceID string `json:"device_id"`
 	Name     string `json:"name"`
+	// Owner is de naam van de eigenaar (community-label in het dashboard).
+	Owner string `json:"owner"`
 	// Type is "cpu-agent", "asic" of "gpu". Zo passen Antminers en GPU's later
 	// vanzelf in hetzelfde dashboard.
 	Type string `json:"type"`

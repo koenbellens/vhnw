@@ -99,6 +99,7 @@ func (r *Reporter) build(ctx context.Context, cfg config.Config) Heartbeat {
 	hb := Heartbeat{
 		DeviceID:     cfg.Community.DeviceID,
 		Name:         cfg.DeviceName(),
+		Owner:        cfg.Community.Owner,
 		Type:         cfg.Community.DeviceType,
 		Algo:         cfg.Algo,
 		Pool:         cfg.Pool,

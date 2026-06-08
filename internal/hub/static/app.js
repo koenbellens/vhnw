@@ -43,12 +43,14 @@ function deviceCard(d) {
   const dot = d.online ? "dot on" : "dot";
   const temp = d.temp_c ? d.temp_c.toFixed(1) + " °C" : "—";
   const state = d.online ? esc(d.state || "—") : "offline";
+  const owner = d.owner ? `<div class="owner">van ${esc(d.owner)}</div>` : "";
   return `
     <div class="dev ${d.online ? "" : "off"}">
       <div class="top">
         <div class="name"><span class="${dot}"></span>${esc(d.name || "?")}</div>
         ${badge}
       </div>
+      ${owner}
       <div class="hr">${fmtHr(d.hashrate)} <small>H/s</small></div>
       <div class="meta">
         <div class="row"><span>Status</span><span>${state}</span></div>

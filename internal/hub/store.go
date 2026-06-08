@@ -149,6 +149,7 @@ func (s *Store) save() {
 // sanitize beperkt tekstvelden en normaliseert het apparaat-type.
 func sanitize(hb community.Heartbeat) community.Heartbeat {
 	hb.Name = clip(hb.Name, 48)
+	hb.Owner = clip(hb.Owner, 48)
 	hb.Pool = clip(hb.Pool, 64)
 	hb.Miner = clip(hb.Miner, 48)
 	hb.Algo = clip(hb.Algo, 24)

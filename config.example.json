@@ -21,6 +21,7 @@
     "hub_url": "https://hub.vanhashnaarwinst.nl",
     "device_id": "",
     "device_name": "laptop1",
+    "owner": "Koen",
     "device_type": "cpu-agent",
     "token": "",
     "interval_seconds": 15

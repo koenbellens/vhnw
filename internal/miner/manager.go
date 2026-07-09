@@ -164,6 +164,11 @@ func (m *Manager) RecentLogs() []string {
 	return m.logs.lines()
 }
 
+// AddLog voegt een regel toe aan de log-buffer (bv. voor de community-reporter).
+func (m *Manager) AddLog(line string) {
+	m.logs.add(line)
+}
+
 // supervise houdt het proces in leven zolang desired==true.
 func (m *Manager) supervise() {
 	for {

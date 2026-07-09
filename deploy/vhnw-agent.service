@@ -1,0 +1,27 @@
+# systemd service voor de VHNW miner-agent.
+#
+# Installeren (als root):
+#   1. kopieer het binary:   sudo cp bin/vhnw-agent /usr/local/bin/
+#   2. maak een map:         sudo mkdir -p /etc/vhnw && sudo cp config.example.json /etc/vhnw/config.json
+#   3. vul je wallet in:     sudo nano /etc/vhnw/config.json
+#   4. plaats dit bestand:   sudo cp deploy/vhnw-agent.service /etc/systemd/system/
+#   5. inschakelen:          sudo systemctl daemon-reload && sudo systemctl enable --now vhnw-agent
+#
+# De agent herstart XMRig zelf via zijn watchdog; Restart=always hieronder zorgt
+# dat ook de agent zelf weer opstart na een crash of reboot.
+
+[Unit]
+Description=VHNW miner-agent (Van Hash Naar Winst)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/vhnw-agent -config /etc/vhnw/config.json
+Restart=always
+RestartSec=5
+# Draai als gewone gebruiker indien gewenst (pas aan):
+# User=miner
+
+[Install]
+WantedBy=multi-user.target

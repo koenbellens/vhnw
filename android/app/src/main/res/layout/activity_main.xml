@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="VHNW miner"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/statusText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="16dp"
+            android:text="Gestopt"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/startStopButton"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="START" />
+
+        <Button
+            android:id="@+id/batteryButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Batterijoptimalisatie uitzetten voor deze app" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Pool / unMineable"
+            android:textStyle="bold" />
+
+        <EditText android:id="@+id/poolInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Pool (bv. rx.unmineable.com:3333)" />
+        <EditText android:id="@+id/walletInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Wallet (COIN:ADRES of alias)" />
+        <EditText android:id="@+id/workerInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Worker-naam" />
+        <EditText android:id="@+id/referralInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Referral (optioneel)" />
+        <EditText android:id="@+id/threadsInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Threads (0 = automatisch)" android:inputType="number" />
+
+        <CheckBox android:id="@+id/tlsCheck" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="TLS" />
+        <CheckBox android:id="@+id/autoStartCheck" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Automatisch starten na herstart" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Community-dashboard (hash.vbnw.nl)"
+            android:textStyle="bold" />
+
+        <CheckBox android:id="@+id/communityCheck" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Meedoen aan community-dashboard" />
+        <EditText android:id="@+id/hubUrlInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Hub-URL" />
+        <EditText android:id="@+id/deviceNameInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Naam op dashboard" />
+        <EditText android:id="@+id/ownerInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Eigenaar" />
+        <EditText android:id="@+id/tokenInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Hub-token" android:inputType="textPassword" />
+
+        <Button
+            android:id="@+id/saveButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Opslaan" />
+
+    </LinearLayout>
+</ScrollView>

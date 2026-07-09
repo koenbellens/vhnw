@@ -1,0 +1,7 @@
+<resources>
+    <style name="Theme.VhnwMiner" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">#F5A623</item>
+        <item name="colorPrimaryDark">#1B1F3B</item>
+        <item name="colorAccent">#F5A623</item>
+    </style>
+</resources>

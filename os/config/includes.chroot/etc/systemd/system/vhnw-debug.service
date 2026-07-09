@@ -1,0 +1,10 @@
+[Unit]
+Description=VHNW debug dump naar seriële poort
+After=live-config.service systemd-user-sessions.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/vhnw-debug.sh
+
+[Install]
+WantedBy=multi-user.target

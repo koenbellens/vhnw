@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="nl" translate="no">
+<head>
+<meta charset="utf-8">
+<meta name="google" content="notranslate">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VHNW &mdash; Desktop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg0:#070a10; --bg1:#0d141c; --panel:#111a24; --panel2:#0e131c;
+    --line:#1e2a3a; --muted:#7d8da3; --txt:#e6edf6;
+    --accent:#16c784; --accent2:#22e39a; --accent-dim:#0f6f52;
+    --danger:#f6465d; --warn:#f0a500;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0}
+  body{
+    font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;color:var(--txt);
+    overflow:hidden;user-select:none;
+    background:
+      radial-gradient(1200px 700px at 78% -10%, rgba(22,199,132,.12), transparent 60%),
+      radial-gradient(900px 600px at 8% 112%, rgba(45,120,255,.09), transparent 60%),
+      linear-gradient(160deg,var(--bg1),var(--bg0));
+  }
+  .motif{position:fixed;inset:0;opacity:.04;pointer-events:none;
+    background-image:repeating-linear-gradient(90deg,#fff 0 2px,transparent 2px 46px)}
+
+  /* ---------- desktop icons ---------- */
+  .desktop{position:absolute;inset:0 0 52px 0;padding:26px;display:flex;flex-direction:column;
+    flex-wrap:wrap;gap:14px;align-content:flex-start}
+  .icon{width:98px;text-align:center;cursor:pointer;padding:10px 6px;border-radius:10px}
+  .icon:hover{background:rgba(255,255,255,.06)}
+  .icon .glyph{width:52px;height:52px;margin:0 auto 8px;border-radius:12px;display:grid;place-items:center;
+    font-size:26px;background:linear-gradient(160deg,var(--panel),var(--panel2));border:1px solid var(--line)}
+  .icon .lbl{font-size:12px;color:#cdd8e3;text-shadow:0 1px 2px #000}
+
+  /* ---------- windows ---------- */
+  .win{position:absolute;background:linear-gradient(180deg,var(--panel),var(--bg1));
+    border:1px solid var(--line);border-radius:14px;box-shadow:0 30px 80px rgba(0,0,0,.55);
+    overflow:hidden;display:none;flex-direction:column;z-index:10}
+  .win.open{display:flex}
+  .win .bar{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#0c141d;
+    border-bottom:1px solid var(--line);cursor:default}
+  .win .bar .dots{display:flex;gap:6px}
+  .win .bar .dot{width:11px;height:11px;border-radius:50%}
+  .dot.r{background:#ff5f57}.dot.y{background:#febc2e}.dot.g{background:#28c840}
+  .win .bar .t{font-size:13px;color:#cdd8e3;font-weight:700}
+  .win .bar .x{margin-left:auto;color:var(--muted);cursor:pointer;font-size:18px;line-height:1;padding:2px 6px;border-radius:6px}
+  .win .bar .x:hover{background:#20303f;color:#fff}
+  .win .body{padding:18px;overflow:auto}
+
+  /* mining window */
+  #win-mining{left:50%;top:44%;transform:translate(-50%,-50%);width:560px;max-width:calc(100vw - 60px)}
+  .devhead{display:flex;align-items:center;justify-content:space-between}
+  .devname{display:flex;align-items:center;gap:9px;font-size:18px;font-weight:700}
+  .live-dot{width:10px;height:10px;border-radius:50%;background:var(--muted)}
+  .live-dot.run{background:var(--accent);box-shadow:0 0 10px var(--accent)}
+  .live-dot.err{background:var(--danger)}
+  .live-dot.wait{background:var(--warn)}
+  .owner{color:var(--muted);font-size:13px;margin-top:2px}
+  .pill{font-size:11px;letter-spacing:.5px;color:var(--accent);border:1px solid var(--accent-dim);
+    background:rgba(22,199,132,.08);padding:3px 9px;border-radius:999px}
+  .bighr{font-family:Orbitron,sans-serif;font-size:44px;font-weight:800;margin:14px 0 2px;letter-spacing:.5px}
+  .bighr small{font-family:Inter;font-size:15px;color:var(--muted);font-weight:600;margin-left:6px}
+  .kv{display:grid;grid-template-columns:1fr 1fr;gap:0 26px;margin-top:12px;font-size:14px}
+  .kv .row{display:flex;justify-content:space-between;border-bottom:1px dashed #1b2836;padding:6px 0}
+  .kv .k{color:var(--muted)}
+  .v.hot{color:var(--danger)} .v.warm{color:var(--warn)}
+  .actions{margin-top:18px;display:flex;gap:10px;flex-wrap:wrap}
+  .btn{border:0;border-radius:10px;padding:11px 16px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+  .btn.primary{background:var(--accent);color:#04231a}
+  .btn.stop{background:var(--danger);color:#1a0306}
+  .btn.ghost{background:transparent;color:#cdd8e3;border:1px solid var(--line)}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .foot{margin-top:14px;color:var(--muted);font-size:12px}
+  .note{color:var(--warn);font-size:13px;margin-top:10px;display:none}
+
+  /* settings window */
+  #win-setup{left:50%;top:46%;transform:translate(-50%,-50%);width:720px;max-width:calc(100vw - 48px);height:min(560px,calc(100vh - 110px))}
+  #win-setup .body{padding:0;display:flex;flex:1;min-height:0}
+  .setnav{width:210px;border-right:1px solid var(--line);padding:12px;overflow:auto;flex:none;background:#0c141d}
+  .setnav .item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;cursor:pointer;font-size:13.5px;color:#cdd8e3}
+  .setnav .item:hover{background:#16212e}
+  .setnav .item.active{background:#16212e;border:1px solid var(--accent-dim)}
+  .setnav .item .ig{width:26px;height:26px;border-radius:7px;display:grid;place-items:center;font-size:15px;background:#12202e;border:1px solid var(--line)}
+  .setpane{flex:1;padding:20px;overflow:auto}
+  .setpane h3{margin:0 0 4px;font-size:16px}
+  .setpane .sub{color:var(--muted);font-size:12.5px;margin-bottom:16px}
+  .pane{display:none}
+  .pane.active{display:block}
+  label{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--muted);margin-bottom:14px}
+  input,select{background:var(--panel2);border:1px solid var(--line);border-radius:8px;color:var(--txt);
+    padding:10px 11px;font-size:14px;font-family:inherit}
+  .savebar{display:flex;align-items:center;gap:12px;margin-top:6px}
+  .msg{font-size:13px}.msg.ok{color:var(--accent)}.msg.err{color:var(--danger)}
+  .infogrid .row{display:flex;justify-content:space-between;border-bottom:1px dashed #1b2836;padding:9px 0;font-size:14px}
+  .infogrid .k{color:var(--muted)}
+  .danger-row{display:flex;gap:10px;margin-top:8px}
+
+  /* logs window */
+  #win-logs{left:50%;top:48%;transform:translate(-50%,-50%);width:680px;max-width:calc(100vw-48px);height:min(460px,calc(100vh-120px))}
+  #win-logs .body{padding:0}
+  pre.logs{margin:0;padding:14px;height:100%;overflow:auto;font-size:12.5px;line-height:1.5;color:#bcd;
+    background:var(--panel2);white-space:pre-wrap;word-break:break-word}
+
+  /* ---------- taskbar ---------- */
+  .taskbar{position:absolute;left:0;right:0;bottom:0;height:52px;display:flex;align-items:center;gap:10px;
+    padding:0 12px;background:rgba(8,13,19,.86);backdrop-filter:blur(10px);border-top:1px solid var(--line);z-index:60}
+  .start{display:flex;align-items:center;gap:10px;padding:8px 14px;border-radius:9px;cursor:pointer;
+    background:linear-gradient(160deg,rgba(22,199,132,.16),rgba(22,199,132,.05));border:1px solid var(--accent-dim)}
+  .start:hover,.start.active{background:rgba(22,199,132,.24)}
+  .start .logo{width:24px;height:24px;border-radius:6px;background:var(--accent);color:#04231a;display:grid;place-items:center;font-weight:900;font-size:13px;font-family:Orbitron,sans-serif}
+  .start .txt{font-weight:700;font-size:14px}
+  .tasks{display:flex;gap:8px;margin-left:6px}
+  .task{padding:7px 12px;border-radius:8px;background:var(--panel);border:1px solid var(--line);
+    font-size:13px;color:#cdd8e3;display:flex;align-items:center;gap:8px;cursor:pointer}
+  .task:hover{border-color:var(--accent-dim)}
+  .task.active{box-shadow:inset 0 -2px 0 var(--accent)}
+  .tray{margin-left:auto;display:flex;align-items:center;gap:16px;padding-right:6px}
+  .net{display:flex;align-items:center;gap:7px;color:#cdd8e3;font-size:12px}
+  .clock{text-align:right;line-height:1.05}
+  .clock .time{font-size:15px;font-weight:700}
+  .clock .date{font-size:11px;color:var(--muted)}
+
+  /* ---------- start menu ---------- */
+  .startmenu{position:absolute;left:12px;bottom:60px;width:380px;background:linear-gradient(180deg,var(--panel),var(--bg1));
+    border:1px solid var(--line);border-radius:14px;box-shadow:0 30px 80px rgba(0,0,0,.6);padding:16px;display:none;z-index:70}
+  .startmenu.open{display:block}
+  .startmenu h3{margin:0 0 3px;font-size:15px}
+  .startmenu .sub{color:var(--muted);font-size:12px;margin-bottom:12px}
+  .menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .mi{display:flex;align-items:center;gap:11px;padding:12px;border-radius:10px;cursor:pointer;background:var(--panel2);border:1px solid var(--line)}
+  .mi:hover{border-color:var(--accent-dim);background:#182636}
+  .mi .mg{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-size:18px;background:linear-gradient(160deg,#12202e,#0e1922);border:1px solid var(--line)}
+  .mi .ml{font-size:13px;font-weight:700}
+  .mi .md{font-size:11px;color:var(--muted)}
+  .power-row{margin-top:12px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:12px}
+  .who{display:flex;align-items:center;gap:10px;font-size:13px}
+  .who .av{width:30px;height:30px;border-radius:50%;background:linear-gradient(160deg,var(--accent),#0aa)}
+  .pbtn{cursor:pointer;color:var(--muted);border:1px solid var(--line);border-radius:8px;padding:7px 10px;font-size:12px}
+  .pbtn:hover{color:#fff;border-color:var(--danger)}
+  .scrim{position:absolute;inset:0;display:none;z-index:65}
+  .scrim.open{display:block}
+</style>
+</head>
+<body>
+  <div class="motif"></div>
+
+  <!-- desktop icons -->
+  <div class="desktop">
+    <div class="icon" data-open="win-mining"><div class="glyph">&#9935;&#65039;</div><div class="lbl">Mining</div></div>
+    <div class="icon" data-href="dashboard"><div class="glyph">&#128202;</div><div class="lbl">Community</div></div>
+    <div class="icon" data-open="win-setup"><div class="glyph">&#9881;&#65039;</div><div class="lbl">Instellingen</div></div>
+    <div class="icon" data-open="win-logs"><div class="glyph">&#128196;</div><div class="lbl">Logs</div></div>
+  </div>
+
+  <!-- mining window -->
+  <div class="win open" id="win-mining">
+    <div class="bar"><div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+      <div class="t">VHNW &middot; Mining-status</div><div class="x" data-close="win-mining">&times;</div></div>
+    <div class="body">
+      <div class="devhead">
+        <div>
+          <div class="devname"><span id="m-dot" class="live-dot"></span><span id="m-name">vhnw-apparaat</span></div>
+          <div class="owner" id="m-owner"></div>
+        </div>
+        <span class="pill" id="m-state">verbinden&hellip;</span>
+      </div>
+      <div class="bighr"><span id="m-hr">0</span> <small id="m-hrunit">H/s</small></div>
+      <div class="kv">
+        <div class="row"><span class="k">Shares (goed)</span><span id="m-shares">0</span></div>
+        <div class="row"><span class="k">Temp</span><span class="v" id="m-temp">&mdash;</span></div>
+        <div class="row"><span class="k">Pool</span><span id="m-pool">&mdash;</span></div>
+        <div class="row"><span class="k">Miner</span><span id="m-ver">&mdash;</span></div>
+        <div class="row"><span class="k">Mining-tijd</span><span id="m-uptime">&mdash;</span></div>
+        <div class="row"><span class="k">Herstarts</span><span id="m-restarts">0</span></div>
+      </div>
+      <div class="actions">
+        <button class="btn primary" id="m-power" disabled>&hellip;</button>
+        <button class="btn ghost" data-open="win-setup">&#9881;&#65039; Setup openen</button>
+      </div>
+      <div class="note" id="m-warn"></div>
+      <div class="foot" id="m-foot">Meldt periodiek aan de community-hub</div>
+    </div>
+  </div>
+
+  <!-- setup window -->
+  <div class="win" id="win-setup">
+    <div class="bar"><div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+      <div class="t">VHNW Setup</div><div class="x" data-close="win-setup">&times;</div></div>
+    <div class="body">
+      <div class="setnav" id="setnav">
+        <div class="item active" data-pane="p-wallet"><span class="ig">&#128176;</span>Wallet</div>
+        <div class="item" data-pane="p-pool"><span class="ig">&#127760;</span>Pool &amp; algo</div>
+        <div class="item" data-pane="p-naam"><span class="ig">&#127991;&#65039;</span>Naam &amp; eigenaar</div>
+        <div class="item" data-pane="p-hub"><span class="ig">&#128225;</span>Community/Hub</div>
+        <div class="item" data-pane="p-mining"><span class="ig">&#9654;&#65039;</span>Mining aan/uit</div>
+        <div class="item" data-pane="p-net"><span class="ig">&#128246;</span>Netwerk</div>
+      </div>
+      <div class="setpane">
+        <!-- Wallet -->
+        <div class="pane active" id="p-wallet">
+          <h3>Wallet</h3><div class="sub">Waar je uitbetaling naartoe gaat (unMineable: COIN:ADRES).</div>
+          <label>Wallet<input id="f_wallet" placeholder="BTC:bc1q..."></label>
+          <label>Referral (optioneel)<input id="f_ref" placeholder="abcd-1234"></label>
+          <div class="savebar"><button class="btn primary" data-save="wallet">Opslaan</button><span class="msg" id="msg-wallet"></span></div>
+        </div>
+        <!-- Pool -->
+        <div class="pane" id="p-pool">
+          <h3>Pool &amp; algoritme</h3><div class="sub">Standaard is unMineable RandomX (rx).</div>
+          <label>Pool<input id="f_pool" placeholder="rx.unmineable.com:3333"></label>
+          <label>Algoritme<input id="f_algo" placeholder="rx"></label>
+          <label>TLS<select id="f_tls"><option value="false">uit</option><option value="true">aan</option></select></label>
+          <label>Threads (0 = automatisch)<input id="f_threads" type="number" min="0"></label>
+          <div class="savebar"><button class="btn primary" data-save="pool">Opslaan</button><span class="msg" id="msg-pool"></span></div>
+        </div>
+        <!-- Naam & eigenaar -->
+        <div class="pane" id="p-naam">
+          <h3>Naam &amp; eigenaar</h3><div class="sub">Hoe dit apparaat op het community-dashboard verschijnt.</div>
+          <label>Apparaatnaam (dashboard)<input id="f_devname" placeholder="vhnw-usb"></label>
+          <label>Eigenaar<input id="f_owner" placeholder="Koen"></label>
+          <label>Worker-naam (pool)<input id="f_worker" placeholder="vhnw-usb"></label>
+          <div class="savebar"><button class="btn primary" data-save="naam">Opslaan</button><span class="msg" id="msg-naam"></span></div>
+        </div>
+        <!-- Community/Hub -->
+        <div class="pane" id="p-hub">
+          <h3>Community / Hub</h3><div class="sub">Melden aan het centrale dashboard (hash.vbnw.nl).</div>
+          <label>Rapporteren naar hub<select id="f_cenabled"><option value="false">uit</option><option value="true">aan</option></select></label>
+          <label>Hub-URL<input id="f_huburl" placeholder="https://hash.vbnw.nl"></label>
+          <label>Token (gedeeld geheim)<input id="f_token" placeholder="vhnw_..."></label>
+          <label>Interval (seconden)<input id="f_interval" type="number" min="5"></label>
+          <div class="savebar"><button class="btn primary" data-save="hub">Opslaan</button><span class="msg" id="msg-hub"></span></div>
+        </div>
+        <!-- Mining aan/uit -->
+        <div class="pane" id="p-mining">
+          <h3>Mining aan/uit</h3><div class="sub">Handmatig starten/stoppen en automatisch starten bij opstart.</div>
+          <div class="actions" style="margin-top:0;margin-bottom:16px">
+            <button class="btn primary" id="s-start">&#9654; Start mining</button>
+            <button class="btn stop" id="s-stop">&#9632; Stop mining</button>
+          </div>
+          <label>Automatisch starten bij opstart<select id="f_auto"><option value="false">nee</option><option value="true">ja</option></select></label>
+          <div class="savebar"><button class="btn primary" data-save="auto">Opslaan</button><span class="msg" id="msg-auto"></span></div>
+        </div>
+        <!-- Netwerk -->
+        <div class="pane" id="p-net">
+          <h3>Netwerk</h3><div class="sub">Verbindingsinformatie van dit apparaat.</div>
+          <div class="infogrid">
+            <div class="row"><span class="k">Status</span><span id="n-status">&mdash;</span></div>
+            <div class="row"><span class="k">Apparaatnaam (hostname)</span><span id="n-host">&mdash;</span></div>
+            <div class="row"><span class="k">IP-adres</span><span id="n-ip">&mdash;</span></div>
+            <div class="row"><span class="k">Systeem-uptime</span><span id="n-uptime">&mdash;</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- logs window -->
+  <div class="win" id="win-logs">
+    <div class="bar"><div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+      <div class="t">Miner-log</div><div class="x" data-close="win-logs">&times;</div></div>
+    <div class="body"><pre class="logs" id="logs">&hellip;</pre></div>
+  </div>
+
+  <!-- start menu -->
+  <div class="scrim" id="scrim"></div>
+  <div class="startmenu" id="startmenu">
+    <h3>VHNW Setup</h3><div class="sub">Alles instellen zonder de terminal</div>
+    <div class="menu-grid">
+      <div class="mi" data-menu="p-wallet"><div class="mg">&#128176;</div><div><div class="ml">Wallet</div><div class="md">payout-adres</div></div></div>
+      <div class="mi" data-menu="p-pool"><div class="mg">&#127760;</div><div><div class="ml">Pool &amp; algo</div><div class="md" id="mm-pool">rx.unmineable</div></div></div>
+      <div class="mi" data-menu="p-naam"><div class="mg">&#127991;&#65039;</div><div><div class="ml">Naam &amp; eigenaar</div><div class="md" id="mm-naam">&mdash;</div></div></div>
+      <div class="mi" data-menu="p-hub"><div class="mg">&#128225;</div><div><div class="ml">Community/Hub</div><div class="md" id="mm-hub">token &amp; url</div></div></div>
+      <div class="mi" data-menu="p-mining"><div class="mg">&#9654;&#65039;</div><div><div class="ml">Mining aan/uit</div><div class="md" id="mm-mining">&mdash;</div></div></div>
+      <div class="mi" data-menu="p-net"><div class="mg">&#128246;</div><div><div class="ml">Netwerk</div><div class="md" id="mm-net">&mdash;</div></div></div>
+    </div>
+    <div class="power-row">
+      <div class="who"><span class="av"></span><span id="who-txt">VHNW</span></div>
+      <div style="display:flex;gap:8px">
+        <span class="pbtn" id="pw-reboot">&#8635; Herstart</span>
+        <span class="pbtn" id="pw-shutdown">&#9211; Afsluiten</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- taskbar -->
+  <div class="taskbar">
+    <div class="start" id="startbtn"><div class="logo">V</div><div class="txt">Start</div></div>
+    <div class="tasks">
+      <div class="task active" data-open="win-mining">&#9935;&#65039; Mining-status</div>
+      <div class="task" data-open="win-setup">&#9881;&#65039; Instellingen</div>
+    </div>
+    <div class="tray">
+      <div class="net" id="net" title="Netwerkstatus">
+        <svg id="net-svg" width="20" height="16" viewBox="0 0 20 16" fill="none">
+          <path d="M2 6.5C6.5 2 13.5 2 18 6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          <path d="M4.8 9.3C7.7 6.6 12.3 6.6 15.2 9.3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          <path d="M7.6 12C9 10.8 11 10.8 12.4 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          <circle cx="10" cy="14.2" r="1.2" fill="currentColor"/>
+        </svg>
+        <span id="net-txt">Verbinden&hellip;</span>
+      </div>
+      <div class="clock"><div class="time" id="clk-time">--:--</div><div class="date" id="clk-date">--</div></div>
+    </div>
+  </div>
+
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+let cfg = null, desired = false, busy = false, online = false;
+
+/* ---------- window & menu handling ---------- */
+function openWin(id){ const w=$(id); if(w){ w.classList.add("open"); w.style.zIndex=++zTop; } setActiveTask(id); }
+function closeWin(id){ const w=$(id); if(w) w.classList.remove("open"); }
+let zTop = 10;
+function setActiveTask(id){
+  document.querySelectorAll(".task").forEach(t=>t.classList.toggle("active", t.dataset.open===id));
+}
+function toggleStart(v){ const open=v??!$("startmenu").classList.contains("open");
+  $("startmenu").classList.toggle("open",open); $("scrim").classList.toggle("open",open); $("startbtn").classList.toggle("active",open); }
+
+document.querySelectorAll("[data-open]").forEach(el=>el.addEventListener("click",()=>openWin(el.dataset.open)));
+document.querySelectorAll("[data-close]").forEach(el=>el.addEventListener("click",()=>closeWin(el.dataset.close)));
+document.querySelectorAll("[data-href]").forEach(el=>el.addEventListener("click",()=>{ /* community dashboard draait op de hub */
+  const url = (cfg && cfg.community && cfg.community.hub_url) ? cfg.community.hub_url : "";
+  if(url) window.open(url, "_blank"); }));
+$("startbtn").addEventListener("click",()=>toggleStart());
+$("scrim").addEventListener("click",()=>toggleStart(false));
+
+/* start-menu tiles -> open setup on the right pane */
+document.querySelectorAll(".mi").forEach(el=>el.addEventListener("click",()=>{ toggleStart(false); openWin("win-setup"); showPane(el.dataset.menu); }));
+
+/* setup nav */
+function showPane(pid){
+  document.querySelectorAll(".setnav .item").forEach(i=>i.classList.toggle("active", i.dataset.pane===pid));
+  document.querySelectorAll(".pane").forEach(p=>p.classList.toggle("active", p.id===pid));
+}
+document.querySelectorAll(".setnav .item").forEach(i=>i.addEventListener("click",()=>showPane(i.dataset.pane)));
+
+/* ---------- clock ---------- */
+function clock(){ const d=new Date();
+  $("clk-time").textContent=d.toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"});
+  $("clk-date").textContent=d.toLocaleDateString("nl-NL",{day:"2-digit",month:"2-digit",year:"numeric"});}
+clock(); setInterval(clock,1000);
+
+/* ---------- helpers ---------- */
+function fmtHr(v){ if(!v||v<=0)return{n:"0",u:"H/s"}; if(v>=1000)return{n:(v/1000).toFixed(2),u:"kH/s"}; return{n:v.toFixed(1),u:"H/s"}; }
+function fmtUptime(secs){ const d=Math.floor(secs/86400),h=Math.floor((secs%86400)/3600),m=Math.floor((secs%3600)/60);
+  if(d>0)return `${d}d ${h}u`; if(h>0)return `${h}u ${m}m`; return `${m}m`; }
+function setNet(ok){ online=ok; const c= ok? "var(--accent)":"var(--danger)";
+  $("net-svg").style.color=c; $("net-txt").textContent= ok? "Verbonden":"Geen verbinding"; }
+
+/* ---------- status polling ---------- */
+async function poll(){
+  try{
+    const r=await fetch("/api/status"); const s=await r.json(); setNet(true); render(s);
+  }catch(e){ setNet(false); $("m-state").textContent="geen verbinding"; $("m-dot").className="live-dot err"; }
+}
+function render(s){
+  const m=s.miner||{}, sum=s.summary, sys=s.system||{};
+  desired=!!m.desired;
+  let cls="live-dot", label=m.state||"onbekend";
+  if(m.state==="actief")cls="live-dot run"; else if(m.state==="fout")cls="live-dot err";
+  else if(m.state==="herstarten"||m.state==="bezig met starten")cls="live-dot wait";
+  $("m-dot").className=cls; $("m-state").textContent=label;
+
+  const hr=fmtHr(sum?sum.hashrate_now:0); $("m-hr").textContent=hr.n; $("m-hrunit").textContent=hr.u;
+  $("m-shares").textContent=sum?sum.shares_good:0;
+  $("m-pool").textContent=(sum&&sum.pool)?sum.pool:"—";
+  $("m-ver").textContent=(sum&&sum.version)?("XMRig "+sum.version):"—";
+  $("m-uptime").textContent=m.running_secs?fmtUptime(m.running_secs):"—";
+  $("m-restarts").textContent=m.restart_count||0;
+  const t=sys.temp_c, tEl=$("m-temp");
+  if(t){ tEl.textContent=t.toFixed(1)+" °C"; tEl.className="v"+(t>=85?" hot":t>=75?" warm":""); }
+  else{ tEl.textContent="—"; tEl.className="v"; }
+
+  // power button
+  const btn=$("m-power"); btn.disabled=busy||(!m.config_valid&&!desired);
+  btn.textContent= desired? "■ Stop mining":"▶ Start mining";
+  btn.className= "btn "+(desired?"stop":"primary");
+  // state pill color
+  $("m-state").className="pill";
+  // config warning
+  if(!m.config_valid&&m.config_error){ $("m-warn").style.display="block"; $("m-warn").textContent="Vul eerst je instellingen in: "+m.config_error; }
+  else $("m-warn").style.display="none";
+
+  // network pane
+  $("n-status").textContent = online? "Verbonden" : "Geen verbinding";
+  $("n-host").textContent = sys.hostname||"—";
+  $("n-ip").textContent = sys.ip_address||"—";
+  $("n-uptime").textContent = sys.uptime_secs? fmtUptime(sys.uptime_secs):"—";
+}
+$("m-power").addEventListener("click",()=>toggleMining());
+$("s-start").addEventListener("click",()=>toggleMining(true));
+$("s-stop").addEventListener("click",()=>toggleMining(false));
+async function toggleMining(force){
+  if(busy)return; busy=true;
+  const target=(force===undefined? (desired?"/api/stop":"/api/start") : (force?"/api/start":"/api/stop"));
+  try{ const r=await fetch(target,{method:"POST"}); const d=await r.json(); if(d.error)alert(d.error); }
+  catch(e){ alert("Kon de actie niet uitvoeren"); }
+  finally{ busy=false; poll(); }
+}
+
+/* ---------- config ---------- */
+async function loadConfig(){
+  try{
+    const r=await fetch("/api/config"); cfg=await r.json();
+    const c=cfg, cm=c.community||{};
+    $("f_wallet").value=c.wallet||""; $("f_ref").value=c.referral||"";
+    $("f_pool").value=c.pool||""; $("f_algo").value=c.algo||""; $("f_tls").value=c.tls?"true":"false"; $("f_threads").value=c.threads||0;
+    $("f_devname").value=cm.device_name||""; $("f_owner").value=cm.owner||""; $("f_worker").value=c.worker||"";
+    $("f_cenabled").value=cm.enabled?"true":"false"; $("f_huburl").value=cm.hub_url||""; $("f_token").value=cm.token||""; $("f_interval").value=cm.interval_seconds||15;
+    $("f_auto").value=c.auto_start?"true":"false";
+    // header labels
+    $("m-name").textContent=cm.device_name||c.worker||"vhnw-apparaat";
+    $("m-owner").textContent=cm.owner? ("van "+cm.owner):"";
+    $("m-foot").textContent= cm.enabled? ("Meldt elke "+(cm.interval_seconds||15)+"s aan "+(cm.hub_url||"de hub")) : "Community-rapportage staat uit";
+    $("who-txt").textContent=(cm.owner? cm.owner+" · ":"")+(cm.device_name||c.worker||"vhnw");
+    $("mm-pool").textContent=c.pool||"—";
+    $("mm-naam").textContent=(cm.device_name||c.worker||"—")+(cm.owner? " · "+cm.owner:"");
+    $("mm-hub").textContent=cm.enabled? "aan":"uit";
+    $("mm-mining").textContent= desired? "nu: actief":"nu: gestopt";
+    $("mm-net").textContent= (c && cfg) ? "info" : "info";
+  }catch(e){ /* stil */ }
+}
+async function saveConfig(part, msgId){
+  const msg=$(msgId);
+  try{
+    const r=await fetch("/api/config",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(part)});
+    const d=await r.json();
+    if(d.error){ msg.className="msg err"; msg.textContent=d.error; }
+    else{ msg.className="msg ok"; msg.textContent="opgeslagen"; setTimeout(()=>msg.textContent="",2500); await loadConfig(); }
+  }catch(e){ msg.className="msg err"; msg.textContent="opslaan mislukt"; }
+}
+document.querySelectorAll("[data-save]").forEach(b=>b.addEventListener("click",()=>{
+  const kind=b.dataset.save;
+  if(kind==="wallet") saveConfig({wallet:$("f_wallet").value.trim(), referral:$("f_ref").value.trim()},"msg-wallet");
+  else if(kind==="pool") saveConfig({pool:$("f_pool").value.trim(), algo:$("f_algo").value.trim(), tls:$("f_tls").value==="true", threads:parseInt($("f_threads").value||"0",10)},"msg-pool");
+  else if(kind==="naam") saveConfig({worker:$("f_worker").value.trim(), community:{device_name:$("f_devname").value.trim(), owner:$("f_owner").value.trim()}},"msg-naam");
+  else if(kind==="hub") saveConfig({community:{enabled:$("f_cenabled").value==="true", hub_url:$("f_huburl").value.trim(), token:$("f_token").value.trim(), interval_seconds:parseInt($("f_interval").value||"15",10)}},"msg-hub");
+  else if(kind==="auto") saveConfig({auto_start:$("f_auto").value==="true"},"msg-auto");
+}));
+
+/* ---------- power ---------- */
+$("pw-reboot").addEventListener("click",()=>powerAction("reboot","Weet je zeker dat je dit apparaat wilt HERSTARTEN?"));
+$("pw-shutdown").addEventListener("click",()=>powerAction("shutdown","Weet je zeker dat je dit apparaat wilt AFSLUITEN?"));
+async function powerAction(action,confirmMsg){
+  if(!confirm(confirmMsg))return;
+  try{ await fetch("/api/power?action="+action,{method:"POST"}); }catch(e){}
+  toggleStart(false);
+}
+
+/* ---------- logs ---------- */
+async function pollLogs(){
+  try{ const r=await fetch("/api/logs"); const d=await r.json(); const el=$("logs");
+    const atBottom=el.scrollTop+el.clientHeight>=el.scrollHeight-20;
+    el.textContent=(d.lines||[]).join("\n")||"(nog geen log)"; if(atBottom)el.scrollTop=el.scrollHeight; }catch(e){}
+}
+
+loadConfig(); poll(); pollLogs();
+setInterval(poll,2000); setInterval(pollLogs,3000); setInterval(loadConfig,10000);
+</script>
+</body>
+</html>

@@ -3,6 +3,7 @@
 package system
 
 import (
+	"net"
 	"os"
 	"strconv"
 	"strings"
@@ -13,6 +14,7 @@ import (
 type Info struct {
 	Hostname    string  `json:"hostname"`
 	OS          string  `json:"os"`
+	IPAddress   string  `json:"ip_address"`   // primair lokaal IPv4-adres (leeg = onbekend)
 	TempC       float64 `json:"temp_c"`       // CPU-temperatuur in graden Celsius (0 = onbekend)
 	UptimeSecs  int64   `json:"uptime_secs"`  // uptime van het systeem
 	LoadAverage float64 `json:"load_average"` // 1-minuut load average (Linux)
@@ -24,10 +26,29 @@ func Collect() Info {
 	return Info{
 		Hostname:    host,
 		OS:          "linux",
+		IPAddress:   localIPv4(),
 		TempC:       cpuTemperature(),
 		UptimeSecs:  systemUptime(),
 		LoadAverage: loadAverage(),
 	}
+}
+
+// localIPv4 geeft het eerste niet-loopback IPv4-adres van het apparaat terug.
+func localIPv4() string {
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		return ""
+	}
+	for _, a := range addrs {
+		ipnet, ok := a.(*net.IPNet)
+		if !ok || ipnet.IP.IsLoopback() {
+			continue
+		}
+		if ip4 := ipnet.IP.To4(); ip4 != nil {
+			return ip4.String()
+		}
+	}
+	return ""
 }
 
 // cpuTemperature leest de CPU-temperatuur uit /sys/class/thermal. Dit werkt op

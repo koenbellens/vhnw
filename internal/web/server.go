@@ -11,7 +11,6 @@ import (
 	"os/exec"
 	"time"
 
-	"github.com/koenbellens/vhnw/internal/config"
 	"github.com/koenbellens/vhnw/internal/miner"
 	"github.com/koenbellens/vhnw/internal/system"
 	"github.com/koenbellens/vhnw/internal/xmrig"
@@ -45,12 +44,18 @@ func (s *Server) routes() {
 	s.mux.HandleFunc("/kiosk", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFileFS(w, r, sub, "kiosk.html")
 	})
+	// /desktop toont de schermvullende "desktop" (Windows-achtige weergave met
+	// taakbalk, Start-knop = setup-menu, klok en netwerk-indicator).
+	s.mux.HandleFunc("/desktop", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFileFS(w, r, sub, "desktop.html")
+	})
 	s.mux.HandleFunc("/debug", s.handleDebug)
 	s.mux.HandleFunc("/api/status", s.handleStatus)
 	s.mux.HandleFunc("/api/start", s.handleStart)
 	s.mux.HandleFunc("/api/stop", s.handleStop)
 	s.mux.HandleFunc("/api/logs", s.handleLogs)
 	s.mux.HandleFunc("/api/config", s.handleConfig)
+	s.mux.HandleFunc("/api/power", s.handlePower)
 }
 
 type summaryView struct {
@@ -166,37 +171,14 @@ func (s *Server) handleConfig(w http.ResponseWriter, r *http.Request) {
 	case http.MethodGet:
 		writeJSON(w, http.StatusOK, s.mgr.Config())
 	case http.MethodPost:
-		var cfg config.Config
+		// Start vanuit de huidige configuratie en overschrijf enkel de velden
+		// die in de JSON meegestuurd worden. Zo wist een deelformulier (bv.
+		// alleen wallet, of alleen het community-blok) de overige instellingen
+		// niet per ongeluk.
+		cfg := s.mgr.Config()
 		if err := json.NewDecoder(r.Body).Decode(&cfg); err != nil {
 			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "ongeldige JSON: " + err.Error()})
 			return
-		}
-		// Behoud bestaande web-instellingen die niet via het formulier komen.
-		current := s.mgr.Config()
-		if cfg.WebHost == "" {
-			cfg.WebHost = current.WebHost
-		}
-		if cfg.WebPort == 0 {
-			cfg.WebPort = current.WebPort
-		}
-		if cfg.MinerAPIHost == "" {
-			cfg.MinerAPIHost = current.MinerAPIHost
-		}
-		if cfg.MinerAPIPort == 0 {
-			cfg.MinerAPIPort = current.MinerAPIPort
-		}
-		if cfg.MinerPath == "" {
-			cfg.MinerPath = current.MinerPath
-		}
-		if cfg.ExtraArgs == nil {
-			cfg.ExtraArgs = current.ExtraArgs
-		}
-		// Velden die niet in het formulier zitten behouden hun huidige waarde.
-		if cfg.RestartDelaySeconds == 0 {
-			cfg.RestartDelaySeconds = current.RestartDelaySeconds
-		}
-		if cfg.HealthGraceSeconds == 0 {
-			cfg.HealthGraceSeconds = current.HealthGraceSeconds
 		}
 		s.mgr.UpdateConfig(cfg)
 		if s.configPath != "" {
@@ -209,6 +191,37 @@ func (s *Server) handleConfig(w http.ResponseWriter, r *http.Request) {
 	default:
 		http.Error(w, "methode niet toegestaan", http.StatusMethodNotAllowed)
 	}
+}
+
+// handlePower herstart of sluit het apparaat af. Bedoeld voor de "Afsluiten"/
+// "Herstart"-knoppen in het setup-menu van de desktop. Vereist dat de agent
+// met voldoende rechten draait (op de USB/Pi draait hij als root).
+func (s *Server) handlePower(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "alleen POST", http.StatusMethodNotAllowed)
+		return
+	}
+	action := r.URL.Query().Get("action")
+	var cmd string
+	switch action {
+	case "reboot":
+		cmd = "systemctl reboot"
+	case "shutdown":
+		cmd = "systemctl poweroff"
+	default:
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "onbekende actie (verwacht 'reboot' of 'shutdown')"})
+		return
+	}
+	// Stop de miner netjes voordat we het systeem afsluiten/herstarten.
+	s.mgr.Stop()
+	writeJSON(w, http.StatusOK, map[string]string{"status": action})
+	// Voer het commando ná het antwoord uit, zodat de UI nog een bevestiging krijgt.
+	go func() {
+		time.Sleep(500 * time.Millisecond)
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		_ = exec.CommandContext(ctx, "sh", "-c", cmd).Run()
+	}()
 }
 
 func writeJSON(w http.ResponseWriter, code int, v any) {

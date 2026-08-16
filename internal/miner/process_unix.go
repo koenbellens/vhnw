@@ -1,3 +1,5 @@
+//go:build !windows
+
 package miner
 
 import (
@@ -5,6 +7,12 @@ import (
 	"syscall"
 	"time"
 )
+
+// setProcAttr zet het kindproces in zijn eigen procesgroep, zodat killProcess
+// straks de hele groep (miner + eventuele kinderen) in één keer kan raken.
+func setProcAttr(cmd *exec.Cmd) {
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+}
 
 // killProcess beëindigt het proces (en zijn procesgroep) netjes met SIGTERM en
 // escaleert na een korte periode naar SIGKILL. Een nil-proces wordt genegeerd.

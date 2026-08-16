@@ -9,7 +9,6 @@ import (
 	"os/exec"
 	"strconv"
 	"sync"
-	"syscall"
 	"time"
 
 	"github.com/koenbellens/vhnw/internal/config"
@@ -220,8 +219,8 @@ func (m *Manager) runOnce(cfg config.Config) {
 	args := buildArgs(cfg)
 	cmd := exec.Command(cfg.MinerPath, args...)
 	// Eigen procesgroep zodt we de miner (en eventuele kinderen) netjes kunnen
-	// beëindigen.
-	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+	// beëindigen (OS-specifieke invulling, zie process_unix.go/process_windows.go).
+	setProcAttr(cmd)
 
 	stdout, _ := cmd.StdoutPipe()
 	stderr, _ := cmd.StderrPipe()
